@@ -1,8 +1,10 @@
 const itemForm = document.getElementById('item-form');
 const itemInput = document.getElementById('item-input');
 const itemList = document.getElementById('item-list');
+const clearBtn = document.getElementById('clear');
+const itemFilter = document.getElementById('filter');
 
-function addItem(e) {
+function onAddItemSubmit(e) {
   e.preventDefault();
 
   const newItem = itemInput.value;
@@ -13,9 +15,16 @@ function addItem(e) {
     return;
   }
 
+  addItemToDOM(newItem);
+
+  itemInput.value = '';
+  checkUI();
+}
+
+function addItemToDOM(item) {
   const li = document.createElement('li');
 
-  const itemName = document.createTextNode(newItem);
+  const itemName = document.createTextNode(item);
 
   li.appendChild(itemName);
 
@@ -23,9 +32,9 @@ function addItem(e) {
   li.appendChild(button);
 
   itemList.appendChild(li);
-
-  itemInput.value = '';
 }
+
+function addItemToSorage() {}
 
 function newButton(classes) {
   const button = document.createElement('button');
@@ -42,5 +51,51 @@ function newIcon(classes) {
   return icon;
 }
 
+function removeItem(e) {
+  if (e.target.parentElement.classList.contains('remove-item')) {
+    if (confirm('Are you sure?')) e.target.parentElement.parentElement.remove();
+  }
+  checkUI();
+}
+
+function clearItems() {
+  if (confirm('Are you sure?')) {
+    while (itemList.firstChild) {
+      itemList.removeChild(itemList.firstChild);
+    }
+  }
+  checkUI();
+}
+
+function checkUI() {
+  const li = document.querySelectorAll('li');
+  if (li.length === 0) {
+    clearBtn.style.display = 'none';
+    itemFilter.style.display = 'none';
+  } else {
+    clearBtn.style.display = 'block';
+    itemFilter.style.display = 'block';
+  }
+}
+
+function filterItems(e) {
+  const items = itemList.querySelectorAll('li');
+  const text = e.target.value.toLowerCase();
+
+  items.forEach((item) => {
+    const itemName = item.firstChild.textContent.toLowerCase();
+    if (itemName.indexOf(text) != -1) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
 // Event Listeners
-document.addEventListener('submit', addItem);
+document.addEventListener('submit', onAddItemSubmit);
+itemList.addEventListener('click', removeItem);
+clearBtn.addEventListener('click', clearItems);
+itemFilter.addEventListener('input', filterItems);
+
+checkUI();
